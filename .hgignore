@@ -1,0 +1,5 @@
+
+syntax: regexp
+^log$
+syntax: regexp
+^target$
