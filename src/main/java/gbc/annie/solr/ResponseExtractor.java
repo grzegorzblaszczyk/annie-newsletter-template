@@ -1,10 +1,13 @@
 package gbc.annie.solr;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.log4j.Logger;
 import org.dom4j.Document;
 import org.dom4j.Node;
 
 public class ResponseExtractor {
+
+  public static final Logger logger = Logger.getLogger(ResponseExtractor.class);
 
   public static final String XPATH_PREFIX = "//response/result/doc/";
 
@@ -13,16 +16,14 @@ public class ResponseExtractor {
       throw new ResponseExtractorException("Field name or field type is blank");
     }
     StringBuffer xpath = new StringBuffer(XPATH_PREFIX);
-
     if (isMultiple) {
       xpath.append(FieldType.ARR.toString().toLowerCase() + "[@name='" + fieldName + "']/" + fieldType.toString().toLowerCase() + "[1]");
     } else {
       xpath.append(fieldType.toString().toLowerCase() + "[@name='" + fieldName + "']");
     }
-
     Node node = doc.selectSingleNode(xpath.toString());
-
     if (node == null) {
+      //logger.error("XML:\n" + doc.asXML());
       throw new ResponseExtractorException("Node " + xpath + " is null");
     }
     String value = node.getText();

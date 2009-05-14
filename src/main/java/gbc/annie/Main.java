@@ -1,20 +1,20 @@
 package gbc.annie;
 
-import gbc.annie.parser.Parser;
-import gbc.annie.parser.SimpleXmlParser;
-import gbc.annie.solr.FieldType;
-import gbc.annie.solr.ResponseExtractor;
+import gbc.annie.solr.QueryPerformer;
 import gbc.annie.ui.ResultPage;
 
+import java.awt.Component;
 import java.awt.Dimension;
+import java.awt.GridLayout;
 import java.awt.Panel;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.HashMap;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
+import java.util.StringTokenizer;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -22,11 +22,8 @@ import javax.swing.JLabel;
 import javax.swing.JTextField;
 
 import org.apache.log4j.Logger;
-import org.dom4j.Document;
 
 public class Main extends JFrame implements ActionListener {
-
-  private static final String SOLR_ENDPOINT = "http://10.9.1.21:9999/solr/select";
 
   public static final Logger logger = Logger.getLogger(Main.class);
 
@@ -41,7 +38,13 @@ public class Main extends JFrame implements ActionListener {
    */
   private static final long serialVersionUID = 4884136881615528439L;
 
-  private JTextField productIdTextField;
+  private JTextField productIdsTextField;
+
+  private JTextField newsletterIdTextField;
+
+  private JTextField speciallyRecommendedIdTextField;
+
+  private Component sectionNameTextField;
 
   /**
    * @param args
@@ -60,60 +63,96 @@ public class Main extends JFrame implements ActionListener {
 
     Panel panel = new Panel();
 
-    JLabel label = new JLabel("ID produktu:");
+    JLabel label = new JLabel("Newsletter ID:");
+    panel.add(label);
+    newsletterIdTextField = new JTextField(10);
+    panel.add(newsletterIdTextField);
+
+    panel.add(new JLabel());
+    panel.add(new JLabel());
+
+    // -----------------------------------------
+
+    label = new JLabel("Szczegolnie polecamy:");
+    panel.add(label);
+    speciallyRecommendedIdTextField = new JTextField(10);
+    panel.add(speciallyRecommendedIdTextField);
+
+    panel.add(new JLabel());
+    panel.add(new JLabel());
+
+    // -----------------------------------------
+
+    label = new JLabel("Nazwa sekcji:");
     panel.add(label);
 
-    productIdTextField = new JTextField(20);
-    productIdTextField.setSize(20, 1);
-    panel.add(productIdTextField);
+    sectionNameTextField = new JTextField(20);
+    sectionNameTextField.setSize(20, 1);
+    panel.add(sectionNameTextField);
+
+    label = new JLabel("ID produktow:");
+    panel.add(label);
+
+    productIdsTextField = new JTextField(20);
+    productIdsTextField.setSize(20, 1);
+    panel.add(productIdsTextField);
+
+    // ------------------------------------------
 
     JButton submit = new JButton("Odczytaj");
+    submit.setName("generate");
     submit.addActionListener(this);
 
     panel.add(submit);
-
     add(panel);
-
     setVisible(true);
   }
 
   public void actionPerformed(ActionEvent ae) {
-    try {
-      Map<String,String> params = performQuery(productIdTextField.getText());
 
-      ResultPage page = new ResultPage();
-      page.setVisible(true);
+    logger.info("source: " + ae.getSource());
 
-      JLabel label = new JLabel("ID: " + params.get("id"));
-      page.getPanel().add(label);
-
-      label = new JLabel("Image1Path: " + params.get("image1Path"));
-      page.getPanel().add(label);
-
-    } catch (MalformedURLException e) {
-      // TODO Auto-generated catch block
-      logger.error(e);
-    }
+    ResultPage page = prepareResultPage();
+    page.setVisible(true);
 
   }
 
-  private Map<String,String> performQuery(String productId) throws MalformedURLException {
-    URL url = new URL(SOLR_ENDPOINT + "?q=id:" + productId + "&fl=id,longDescription,image1Path");
+  private ResultPage prepareResultPage() {
+    ResultPage resultPage = new ResultPage();
 
-    Parser parser = new SimpleXmlParser();
-    Document document = parser.parse(url);
+    List<Map<String, String>> productParamsList = performProductQueries();
+    renderOutput(resultPage, productParamsList);
 
-    Map<String,String> params = new HashMap<String, String>();
+    return resultPage;
+  }
 
-    params.put("id", ResponseExtractor.getValue(document, "id", FieldType.STR, false));
-    params.put("image1Path", ResponseExtractor.getValue(document, "image1Path", FieldType.STR, true));
+  private List<Map<String, String>> performProductQueries() {
+    List<Map<String, String>> productParamsList = new ArrayList<Map<String, String>>();
+    try {
 
-    if (logger.isDebugEnabled()) {
-      for (String key : params.keySet()) {
-        logger.info(key + ": " + params.get(key));
+      StringTokenizer tokenizer = new StringTokenizer(productIdsTextField.getText(), ",");
+      while (tokenizer.hasMoreTokens()) {
+        String productId = tokenizer.nextToken();
+        QueryPerformer qPerformer = new QueryPerformer();
+        qPerformer.setEndpoint(Constants.SOLR_ENDPOINT);
+        Map<String, String> productParams = qPerformer.performQuery(productId);
+        productParamsList.add(productParams);
       }
+
+    } catch (MalformedURLException e) {
+      logger.error(e);
     }
-    return params;
+    return productParamsList;
+  }
+
+  private void renderOutput(ResultPage resultPage, List<Map<String, String>> productParamsList) {
+    for (Map<String, String> listItem : productParamsList) {
+      JLabel label = new JLabel("ID: " + listItem.get(Constants.PRODUCT_ID));
+      resultPage.getPanel().add(label);
+
+      label = new JLabel("Image1Path: " + listItem.get(Constants.IMAGE));
+      resultPage.getPanel().add(label);
+    }
   }
 
   private void setupMainWindowLocationOnScreen() {
@@ -121,6 +160,7 @@ public class Main extends JFrame implements ActionListener {
     setLocation(screenSize.width / 2 - MAIN_WINDOW_WIDTH / 2, screenSize.height / 2 - MAIN_WINDOW_HEIGHT / 2);
     setVisible(true);
     setSize(800, 600);
+    setLayout(new GridLayout(7, 4));
   }
 
   private void setupWindowName() {

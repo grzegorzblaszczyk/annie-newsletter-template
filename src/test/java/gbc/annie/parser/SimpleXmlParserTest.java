@@ -3,6 +3,8 @@ package gbc.annie.parser;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
+import gbc.annie.Constants;
+
 import java.net.MalformedURLException;
 import java.net.URL;
 
@@ -16,11 +18,10 @@ public class SimpleXmlParserTest {
 
   public static final Logger logger = Logger.getLogger(SimpleXmlParserTest.class);
 
-  public static final String ENDPOINT = "http://10.9.1.21:9999/solr/select";
   public static URL TEST_URL = null;
   static {
     try {
-      TEST_URL = new URL(ENDPOINT + "?q=id:1124&fl=id,longDescription,image1Path");
+      TEST_URL = new URL(Constants.SOLR_ENDPOINT + "?q=id:1124&fl=id,longDescription,image1Path");
     } catch (MalformedURLException e) {
       logger.error(e);
     }
