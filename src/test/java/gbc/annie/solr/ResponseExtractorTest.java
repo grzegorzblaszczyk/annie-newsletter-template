@@ -26,27 +26,27 @@ public class ResponseExtractorTest {
 
   @Test
   public void testGetProperValue() throws DocumentException {
-    assertEquals("1124", ResponseExtractor.getValue(doc, "id", FieldType.STR, false));
+    assertEquals("1124", ResponseExtractor.getValue(doc, "1124", "id", FieldType.STR, false));
   }
 
   @Test(expected=ResponseExtractorException.class)
   public void testGetValueWithInvalidValue() throws DocumentException {
-    assertNull("1124", ResponseExtractor.getValue(doc, "lala", FieldType.INT, false));
+    assertNull("1124", ResponseExtractor.getValue(doc, "1124", "lala", FieldType.INT, false));
   }
 
   @Test(expected=NullPointerException.class)
   public void testGetValueWithInvalidType() throws DocumentException {
-    assertNull("1124", ResponseExtractor.getValue(doc, "id", null, false));
+    assertNull("1124", ResponseExtractor.getValue(doc, "1124", "id", null, false));
   }
 
   @Test
   public void testGetValueFromMultipleField() throws DocumentException {
-    assertEquals("/57/93/57937073e2d82e6724193a66c9f26be2.jpg", ResponseExtractor.getValue(doc, "image1Path", FieldType.STR, true));
+    assertEquals("/57/93/57937073e2d82e6724193a66c9f26be2.jpg", ResponseExtractor.getValue(doc, "1124", "image1Path", FieldType.STR, true));
   }
 
   @Test(expected=NullPointerException.class)
   public void testGetValueWithInvalidIndex() throws DocumentException {
-    assertNull("1124", ResponseExtractor.getValue(doc, "image1Path", null, true));
+    assertNull("1124", ResponseExtractor.getValue(doc, "1124", "image1Path", null, true));
   }
 
 }

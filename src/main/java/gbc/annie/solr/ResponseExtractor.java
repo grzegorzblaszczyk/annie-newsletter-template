@@ -11,11 +11,16 @@ public class ResponseExtractor {
 
   public static final String XPATH_PREFIX = "//response/result/doc/";
 
-  public static String getValue(Document doc, String fieldName, FieldType fieldType, boolean isMultiple) throws ResponseExtractorException {
+  public static String getValue(Document doc, String productId, String fieldName, FieldType fieldType, boolean isMultiple) throws ResponseExtractorException {
+
+    if (logger.isDebugEnabled()) {
+      logger.debug(doc.asXML());
+    }
+
     if (StringUtils.isBlank(fieldName) || StringUtils.isBlank(fieldType.name())) {
       throw new ResponseExtractorException("Field name or field type is blank");
     }
-    StringBuffer xpath = new StringBuffer(XPATH_PREFIX);
+    StringBuffer xpath = new StringBuffer(XPATH_PREFIX + "str[@name=\"id\"][text()=\"" + productId + "\"]/../");
     if (isMultiple) {
       xpath.append(FieldType.ARR.toString().toLowerCase() + "[@name='" + fieldName + "']/" + fieldType.toString().toLowerCase() + "[1]");
     } else {
@@ -23,7 +28,6 @@ public class ResponseExtractor {
     }
     Node node = doc.selectSingleNode(xpath.toString());
     if (node == null) {
-      //logger.error("XML:\n" + doc.asXML());
       throw new ResponseExtractorException("Node " + xpath + " is null");
     }
     String value = node.getText();
