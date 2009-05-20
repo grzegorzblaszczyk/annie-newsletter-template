@@ -19,7 +19,7 @@ public class QueryPerformer {
   private String endpoint;
 
   public Map<String,String> performQuery(String productId) throws MalformedURLException {
-    URL url = new URL(endpoint + "?q=id:" + productId + "+OR+id:prod4310199&fl=author,basePrice,director,displayName,goldPrice,id,longDescription,image1Path,movieCast,originalDisplayName,originalSubTitle,originalTitie,performer,productDisplayNames,salePrice,subtitle,title");
+    URL url = new URL(endpoint + "?q=id:" + productId + "&fl=author,basePrice,director,displayName,goldPrice,id,longDescription,image1Path,movieCast,originalDisplayName,originalSubTitle,originalTitie,performer,productDisplayNames,salePrice,subtitle,title");
 
     Parser parser = new SimpleXmlParser();
     Document document = parser.parse(url);

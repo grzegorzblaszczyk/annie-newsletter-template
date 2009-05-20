@@ -1,6 +1,7 @@
 package gbc.annie.ui;
 
 import gbc.annie.Constants;
+import gbc.annie.renderer.SimpleNewsletterRenderer;
 import gbc.annie.solr.QueryPerformer;
 import gbc.annie.solr.ResponseExtractorException;
 
@@ -28,7 +29,6 @@ import javax.swing.WindowConstants;
 import org.apache.log4j.Logger;
 
 import com.jgoodies.forms.builder.DefaultFormBuilder;
-import com.jgoodies.forms.debug.FormDebugPanel;
 import com.jgoodies.forms.layout.FormLayout;
 
 public class StartPage implements ActionListener {
@@ -185,13 +185,13 @@ public class StartPage implements ActionListener {
   }
 
   private void renderOutput(ResultPage resultPage, List<Map<String, String>> productParamsList) {
-    for (Map<String, String> listItem : productParamsList) {
-      JLabel label = new JLabel("ID: " + listItem.get(Constants.PRODUCT_ID));
-      resultPage.getPanel().add(label);
-
-      label = new JLabel("Image1Path: " + listItem.get(Constants.IMAGE));
-      resultPage.getPanel().add(label);
-    }
+	  SimpleNewsletterRenderer renderer = new SimpleNewsletterRenderer();
+	  String newsletter = renderer.render(productParamsList);
+	  
+	  JTextArea textArea = new JTextArea(30,70);
+	  textArea.setText(newsletter);
+	  textArea.setToolTipText("Newsletter");
+	  resultPage.getPanel().add(new JScrollPane(textArea,JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED));	  
   }
 
 }
