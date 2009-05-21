@@ -2,11 +2,11 @@ package gbc.annie.solr;
 
 import static org.junit.Assert.assertEquals;
 
-import gbc.annie.Constants;
-
 import java.net.MalformedURLException;
 import java.util.Map;
 
+import org.apache.commons.configuration.Configuration;
+import org.apache.commons.configuration.PropertiesConfiguration;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -18,7 +18,9 @@ public class QueryPerformerTest {
   @Before
   public void setUp() throws Exception {
     qPerformer = new QueryPerformer();
-    qPerformer.setEndpoint(Constants.SOLR_ENDPOINT);
+    Configuration config = new PropertiesConfiguration("annie.properties");
+    String endPoint = (String)config.getProperty("solrEndpoint");
+    qPerformer.setEndpoint(endPoint);
   }
 
   @After

@@ -1,6 +1,5 @@
 package gbc.annie.ui;
 
-import gbc.annie.Constants;
 import gbc.annie.renderer.SimpleNewsletterRenderer;
 import gbc.annie.solr.QueryPerformer;
 import gbc.annie.solr.ResponseExtractorException;
@@ -20,12 +19,14 @@ import java.util.StringTokenizer;
 import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JFrame;
-import javax.swing.JLabel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.WindowConstants;
 
+import org.apache.commons.configuration.Configuration;
+import org.apache.commons.configuration.ConfigurationException;
+import org.apache.commons.configuration.PropertiesConfiguration;
 import org.apache.log4j.Logger;
 
 import com.jgoodies.forms.builder.DefaultFormBuilder;
@@ -48,6 +49,11 @@ public class StartPage implements ActionListener {
 
   private JTextArea footerTextArea;
 
+  private Configuration config;
+
+  public StartPage() throws ConfigurationException {
+    config = new PropertiesConfiguration("annie.properties");
+  }
 
   public void createAndShowGUI(String programNameAndVersion) {
     JFrame frame = new JFrame(programNameAndVersion);
@@ -147,21 +153,24 @@ public class StartPage implements ActionListener {
 
     logger.info("source: " + ae.getSource());
 
-    ResultPage page = prepareResultPage();
-    page.setVisible(true);
+    try {
+      ResultPage page = prepareResultPage();
+      page.setVisible(true);
+    } catch (ConfigurationException e) {
+      logger.error(e);
+    }
 
   }
 
-  private ResultPage prepareResultPage() {
+  private ResultPage prepareResultPage() throws ConfigurationException {
     ResultPage resultPage = new ResultPage();
-
-    List<Map<String, String>> productParamsList = performProductQuery(speciallyRecommendedIdTextField.getText());
+    String solrEndpoint = (String)config.getProperty("solrEndpoint");
+    List<Map<String, String>> productParamsList = performProductQuery(speciallyRecommendedIdTextField.getText(), solrEndpoint);
     renderOutput(resultPage, productParamsList);
-
     return resultPage;
   }
 
-  private List<Map<String, String>> performProductQuery(String input) {
+  private List<Map<String, String>> performProductQuery(String input, String solrEndpoint) {
     List<Map<String, String>> productParamsList = new ArrayList<Map<String, String>>();
     try {
 
@@ -169,7 +178,7 @@ public class StartPage implements ActionListener {
       while (tokenizer.hasMoreTokens()) {
         String productId = tokenizer.nextToken();
         QueryPerformer qPerformer = new QueryPerformer();
-        qPerformer.setEndpoint(Constants.SOLR_ENDPOINT);
+        qPerformer.setEndpoint(solrEndpoint);
         try {
           Map<String, String> productParams = qPerformer.performQuery(productId);
           productParamsList.add(productParams);
@@ -187,11 +196,11 @@ public class StartPage implements ActionListener {
   private void renderOutput(ResultPage resultPage, List<Map<String, String>> productParamsList) {
 	  SimpleNewsletterRenderer renderer = new SimpleNewsletterRenderer();
 	  String newsletter = renderer.render(productParamsList);
-	  
+
 	  JTextArea textArea = new JTextArea(30,70);
 	  textArea.setText(newsletter);
 	  textArea.setToolTipText("Newsletter");
-	  resultPage.getPanel().add(new JScrollPane(textArea,JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED));	  
+	  resultPage.getPanel().add(new JScrollPane(textArea,JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED));
   }
 
 }

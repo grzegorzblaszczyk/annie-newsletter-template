@@ -8,6 +8,9 @@ import gbc.annie.Constants;
 import java.net.MalformedURLException;
 import java.net.URL;
 
+import org.apache.commons.configuration.Configuration;
+import org.apache.commons.configuration.ConfigurationException;
+import org.apache.commons.configuration.PropertiesConfiguration;
 import org.apache.log4j.Logger;
 import org.dom4j.Document;
 import org.junit.After;
@@ -21,7 +24,14 @@ public class SimpleXmlParserTest {
   public static URL TEST_URL = null;
   static {
     try {
-      TEST_URL = new URL(Constants.SOLR_ENDPOINT + "?q=id:1124&fl=id,longDescription,image1Path");
+      Configuration config = null;
+      try {
+        config = new PropertiesConfiguration("annie.properties");
+      } catch (ConfigurationException e) {
+        logger.error(e);
+      }
+      String endPoint = (String)config.getProperty("solrEndpoint");
+      TEST_URL = new URL(endPoint + "?q=id:1124&fl=id,longDescription,image1Path");
     } catch (MalformedURLException e) {
       logger.error(e);
     }

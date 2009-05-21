@@ -22,6 +22,9 @@ public class QueryPerformer {
     URL url = new URL(endpoint + "?q=id:" + productId + "&fl=author,basePrice,director,displayName,goldPrice,id,longDescription,image1Path,movieCast,originalDisplayName,originalSubTitle,originalTitie,performer,productDisplayNames,salePrice,subtitle,title");
 
     Parser parser = new SimpleXmlParser();
+
+    logger.debug("Sending query: " + url.toString());
+
     Document document = parser.parse(url);
 
     Map<String,String> params = new HashMap<String, String>();

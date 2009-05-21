@@ -2,6 +2,7 @@ package gbc.annie;
 
 import gbc.annie.ui.StartPage;
 
+import org.apache.commons.configuration.ConfigurationException;
 import org.apache.log4j.Logger;
 
 public class Main {
@@ -20,8 +21,12 @@ public class Main {
    * @param args
    */
   public static void main(String[] args) {
+    try {
       StartPage startPage = new StartPage();
       startPage.createAndShowGUI(PROGRAM_NAME + " " + VERSION);
+    } catch (ConfigurationException e) {
+      logger.error(e);
+    }
   }
 
 }
