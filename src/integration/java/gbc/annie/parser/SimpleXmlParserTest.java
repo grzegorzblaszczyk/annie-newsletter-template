@@ -3,8 +3,6 @@ package gbc.annie.parser;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
-import gbc.annie.Constants;
-
 import java.net.MalformedURLException;
 import java.net.URL;
 
