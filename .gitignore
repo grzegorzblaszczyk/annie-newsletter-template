@@ -1,0 +1,8 @@
+target
+target/*
+\.hg
+\.hg/*
+log
+log/*
+\.settings
+\.settings/*
