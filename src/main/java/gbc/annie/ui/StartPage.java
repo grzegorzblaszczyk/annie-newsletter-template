@@ -98,7 +98,7 @@ public class StartPage implements ActionListener {
     productIds2TextField = new JTextField();
 
     footerTextArea = new JTextArea(8,120);
-    footerTextArea.setText("powered by empik.com");
+    footerTextArea.setText("powered by foobar");
     footerTextArea.setToolTipText("Stopka newslettera...");
   }
 
